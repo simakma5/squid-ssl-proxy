@@ -1,12 +1,9 @@
-# Author: Satish Gaikwad <satish@satishweb.com>
-# Please declare DOLLAR variable to dollar sign before running envsubst command on this file
-version: "3.4"
 networks:
   proxy:
 
 services:
   squid:
-    image: satishweb/squid-ssl-proxy:latest
+    image: squid-ssl-proxy:local
     networks:
       - proxy
     environment:
@@ -25,6 +22,4 @@ services:
       - ./data/log:/var/log/
       - ./data/cache:/var/cache
       - ./data/cert:/etc/squid-cert
-      # - ./conf/squid.sample.conf:/templates/squid.sample.conf
-      # - ./scripts/entrypoint.sh /entrypoint
     restart: always

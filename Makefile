@@ -1,4 +1,4 @@
-IMAGE=satishweb/squid-ssl-proxy
+IMAGE=squid-ssl-proxy:local
 PLATFORMS=linux/amd64,linux/arm64,linux/arm/v7,linux/arm/v6
 WORKDIR=$(shell pwd)
 BASE_IMAGE=alpine:latest
@@ -46,6 +46,6 @@ test:
 
 debug:
 	docker rm -f squid
-	docker run -d --name squid -e DEBUG=1 --entrypoint=/bin/sh -v $$(pwd)/conf/squid.sample.conf:/templates/squid.sample.conf -v $$(pwd)/scripts/docker-entrypoint:/docker-entrypoint satishweb/squid-ssl-proxy:${SQUID_VERSION} -c "sleep 9999999"
+	docker run -d --name squid -e DEBUG=1 --entrypoint=/bin/sh -v $$(pwd)/conf/squid.sample.conf:/templates/squid.sample.conf -v $$(pwd)/scripts/docker-entrypoint:/docker-entrypoint squid-ssl-proxy:local -c "sleep 9999999"
 	echo "Run ./docker-entrypoint before this command: squid -NYCd 1 -f /etc/squid/squid.conf"
 	docker exec -it squid sh

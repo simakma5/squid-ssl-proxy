@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# Determine the working directory of the script
 __findWorkDir() {
   ## Get the real script folder path
   # shellcheck disable=SC2164
@@ -18,6 +19,7 @@ __findWorkDir() {
   cd "$workDir"
 }
 
+# Substitute environment variables in a file
 envsubst() {
   # $1 = Source file path
   # $2 = Destination file path
@@ -38,6 +40,7 @@ envsubst() {
   sed ${sedFlags} 's/BACKQUOTE/`/g' "$2"
 }
 
+# Load configuration variables from env.conf
 __loadConfig() {
   # env.conf is needed
   if [[ ! -f env.conf ]]; then
@@ -60,6 +63,7 @@ __loadConfig() {
   done <<< "$(cat env.conf)"
 }
 
+# Perform validations and cleanup
 __validations() {
 
   osv=$(uname|awk '{ print $1 }')
@@ -75,11 +79,23 @@ __validations() {
   docker rm $(docker ps -q -f "status=exited") >/dev/null 2>&1
 }
 
+# Build the Docker image locally
+__buildDockerImage() {
+  echo "Building the local Docker image..."
+  docker build -t squid-ssl-proxy:local .
+  if [ $? -ne 0 ]; then
+    echo "ERROR: Failed to build the Docker image"
+    exit 1
+  fi
+}
+
+# Launch Docker containers using docker-compose
 __launchDockerContainers() {
   set -e
 
   envsubst "docker-compose.yml" ".local-docker-compose.yml"
-  if ! /usr/local/bin/docker-compose -f .local-docker-compose.yml -p "${STACK}" up -d; then
+
+  if ! "/c/Program Files/Docker/Docker/resources/bin/docker-compose" -f .local-docker-compose.yml -p "${STACK}" up -d; then
     echo "Docker compose command failed"
     exit 1
   else
@@ -87,9 +103,9 @@ __launchDockerContainers() {
   fi
 }
 
-# Main
-
+# Main script execution
 __findWorkDir
 __loadConfig
 __validations
+__buildDockerImage
 __launchDockerContainers

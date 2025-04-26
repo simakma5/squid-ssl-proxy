@@ -1,7 +1,8 @@
 #!/bin/bash
-# Author: Satish Gaikwad <satish@satishweb.com>
 
 ## Functions
+
+# Display usage instructions for the script
 __usage() {
   if [[ "$1" != "" ]]; then
       echo "ERR: $1 "
@@ -20,7 +21,7 @@ __usage() {
           -h|--help"
   echo "Description:"
   echo "  -i|--image-name : Name of the docker image."
-  echo "    e.g. satishweb/imagename. (Def: current directory name)"
+  echo "    e.g. squid-ssl-proxy. (Def: current directory name)"
   echo "  -p|--platforms  : list of platforms to build for."
   echo "    (Def: linux/amd64,linux/arm64,linux/arm/v7,linux/arm/v6)"
   echo "  -w|--work-dir   : Docker buildx command work dir path"
@@ -35,6 +36,7 @@ __usage() {
   exit 1
 }
 
+# Process and validate input parameters
 __processParams() {
   extraDockerArgs=""
   imageTags=""
@@ -88,14 +90,16 @@ __processParams() {
   [[ ! $image ]] && image=$(basename "$(pwd)")
 }
 
+# Check for errors and exit if any are found
 __errCheck(){
   # $1 = errocode
   # $2 = msg
   [[ "$1" != "0" ]] && echo "ERR: $2" && exit "$1"
 }
 
+# Build Docker images using buildx
 __dockerBuild(){
-  # $1 = image name e.g. "satishweb/imagename"
+  # $1 = image name e.g. "squid-ssl-proxy"
   # $2 = image tags e.g. "latest 1.1.1"
   # $3 = platforms e.g. "linux/amd64,linux/arm64"
   # $4 = work dir path
@@ -108,6 +112,7 @@ __dockerBuild(){
   __errCheck "$?" "Docker Build failed"
 }
 
+# Perform validations for the build environment
 __validations() {
   ! [[ "$imgPush" =~ ^(yes|no)$ ]] && imgPush=no
   ! [[ "$tagPush" =~ ^(yes|no)$ ]] && tagPush=no
@@ -120,8 +125,8 @@ __validations() {
   fi
 }
 
+# Ensure the source code is up-to-date if pushing images
 __checkSource() {
-  # Lets do git pull if push is enabled
   if [[ "$imgPush" == "yes" ]]; then
     git checkout main >/dev/null 2>&1
     __errCheck "$?" "Git checkout to main branch failed..."
@@ -130,6 +135,7 @@ __checkSource() {
   fi
 }
 
+# Set up Docker buildx environment
 __setupDocker() {
   # Lets prepare docker image
   if [[ "$imgPush" == "yes" ]]; then
@@ -143,6 +149,7 @@ __setupDocker() {
   __errCheck "$?" "Could not use docker buildx default runner..."
 }
 
+# Create and optionally push a Git tag
 __createGitTag() {
   # Lets create git tag
   echo "INFO: Creating local git tag: $tagName"
@@ -155,14 +162,13 @@ __createGitTag() {
   fi
 }
 
-## Main
+## Main script execution
 __processParams "$@"
 __validations
 __checkSource
 __setupDocker
 
-# Lets identify current unbound version and setup image tags
-
+# Build Docker images
 echo "INFO: Building Docker Images (may take a while)"
 echo "INFO: Docker image      : $image"
 echo "INFO: Platforms         : $platforms"
@@ -171,4 +177,6 @@ echo "INFO: Image tags push?  : $imgPush"
 echo "INFO: Git tags          : $tagName"
 echo "INFO: Git tags push?    : $tagPush"
 __dockerBuild "$image" "$imageTags" "$platforms" "$workDir" "$extraDockerArgs"
+
+# Create and push Git tags
 __createGitTag "$tagName"

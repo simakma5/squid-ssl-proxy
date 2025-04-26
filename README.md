@@ -1,18 +1,22 @@
+
 # ![Logo](images/squid-logo.png) Squid Proxy with SSLBump [Works on Raspberry Pi]
 Container image for Squid SSL proxy server with SSL Bump enabled. SSLBump (Squid-in-the-middle) does the decryption and encryption of straight CONNECT and transparently redirected SSL traffic, using configurable CA certificates.
 
 ## :x: WARNING :x:
 Use this Squid SSL Proxy with SSLBump only with the user's consent. [Legal Warning](#legal-warning)
 
+## Disclaimer
+This project is a fork of [https://github.com/satishweb/squid-ssl-proxy](https://github.com/satishweb/squid-ssl-proxy), modified for the purposes of auditing HTTP/S communication and other proxy testing. All credits for the original implementation go to the original author.
+
 ## Requirements
 1. Docker Compose
 
 ## Quick Start
 
-1. Download the [latest release](https://github.com/satishweb/squid-ssl-proxy/releases/latest) and unzip.
+1. Clone the repository
 
 ```shell
-curl -s https://api.github.com/repos/satishweb/squid-ssl-proxy/releases/latest|grep "tarball_url" | head -1|awk -F '[:"]' '{print $5":"$6}'| xargs curl -L -o release.tar.gz && tar zxf release.tar.gz && rm release.tar.gz; mv satishweb-* squid-ssl-proxy && cd squid-ssl-proxy && rm -rf images Dockerfile .do* .git* build.sh Makefile conf scripts && cd - 
+git clone https://github.com/simakma5/squid-ssl-proxy.git
 ```
 
 2. (Optional) Edit `docker-compose.yml` file
